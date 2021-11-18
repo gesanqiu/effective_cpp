@@ -145,7 +145,7 @@ public:
     }
 private:
     char* pText;
-}
+};
 
 // test
 const CTextBlock cctb("Hello");
@@ -184,7 +184,7 @@ public:
             		*this)[position]);
     }
 ...
-}
+};
 ```
 
 **注：**这一item对const的使用提出了数点要求，但是恕本人才疏学浅，目前使用上仅局限于pass-by- reference-to-const和少量的const member function，并不会过于纠结const的细枝末节，事实上我觉得开发不应该被规则所束缚，对于你写的每一行代码做到心中有数即可。

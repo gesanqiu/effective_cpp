@@ -144,7 +144,7 @@ class Widget {
     ...
 private:
     Bitmap* pb;
-}
+};
 
 Widget& Widget::operator=(const Widget& rhs)
 {
@@ -190,7 +190,7 @@ class Widget {
     ...
 private:
     Bitmap* pb;
-}
+};
 
 Widget& Widget::operator=(const Widget& rhs)
 {
