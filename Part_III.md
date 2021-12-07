@@ -1,6 +1,6 @@
 # Item13: 以对象管理资源
 
-与拥有垃圾回收机制的语言不通，C++给予了开发者足够的自由。所谓资源就是一旦用了它，将来必须还给系统。新手往往会陷入一个误区，认为资源就是内存，但广义上的资源包括一切请求，例如文件描述符，互斥锁，数据库连接，网络sockets等。
+所谓资源就是：一旦用了它，将来必须还给系统。与拥有垃圾回收机制的语言不同，C++给予了开发者足够的自由，这时新手往往会陷入一个误区，认为资源就是内存，但广义上的资源包括一切请求，例如文件描述符，互斥锁，数据库连接，网络sockets等。
 
 ```c++
 class Investment { ... };
@@ -35,11 +35,15 @@ void f()
 - 获得资源后立即放进管理对象：createInvestment返回的资源立马成为其资源管理者auto_ptr的初值。
 - 管理对象运用析构函数确保资源被释放：无论控制流如何离开区块，一旦对象被销毁（比如离开对象的作用域）其析构函数会自动被调用。
 
-需要注意的是多个auto_ptr不能指向同一对象，否则由于其被销毁是会调用析构函数的特点，这个对象会被删除多次，将导致未定义行为，因此auto_ptr实际仅用了copying函数。
+需要注意的是多个auto_ptr不能指向同一对象，否则由于其被销毁是会调用析构函数的特点，这个对象会被删除多次，将导致未定义行为。因此auto_ptr实际上需要禁用copying函数，但书中当时由于还没有`= delete`关键字，所以auto_ptr要求对象对于指向的资源具有唯一拥有权。
 
-书中当是由于还没有`= delete`关键字，所以auto_ptr对于指向的资源具有唯一拥有权。
+```C++
+std::auto_ptr<Investment> pInv1(createInvestment);	// pInv1指向createInvestment返回物4
+std::auto_ptr<Investment> pInv2(pInv1);		// 现在pInv2指向对象，pInv1被设为null
+pInv1 = pInv2;	// 现在pInv1指向对象，pInv2被设为null
+```
 
-当然更加推荐的做法是使用`std::shared_ptr`——引用计数型智能指针。
+当然更加推荐的做法是使用`std::shared_ptr`——引用计数型智能指针，它会持续追踪共有多少对象指向某笔资源，并在无人指向它时自动删除该资源。
 
 ```c++
 void f()
@@ -55,7 +59,7 @@ void f()
 
 # Item14: 在资源管理类中小心copying行为
 
-条款13导入这样的观念：“资源取得时机便是初始化时机(Resource Acquisition Is Initialization; RAII)”，并以此作为“资源管理类”的记住，也描述了auto_ptr和shared_ptr如何将这个观念表现在heap-baed资源上。但如前文所说，资源不仅仅是memory，还有可能是互斥锁着类非heap-based资源，这时候智能指针将会失效，于是开发人员需要实现自己的资源管理类。
+条款13导入这样的观念：“资源取得时机便是初始化时机(Resource Acquisition Is Initialization; RAII)”，并以此作为“资源管理类”的基础，也描述了auto_ptr和shared_ptr如何将这个观念表现在heap-baed资源上。但如前文所说，资源不仅仅是memory，还有可能是互斥锁这类非heap-based资源，这时候智能指针将会失效，于是开发人员需要实现自己的资源管理类。
 
 ```c++
 class Lock {

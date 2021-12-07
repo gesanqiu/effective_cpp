@@ -58,8 +58,6 @@ public:
 };
 ```
 
-
-
 **注：**书中例子在最后提到了Item4中non-local static对象初始化的问题，在我看来似乎不是一个场景。
 
 ## 从**语法层面**限制调用者**不能做的事**
@@ -139,7 +137,7 @@ std::shared_ptr<Investment> createInvestment();
 
 此外所有的变量都是private了，那么所有的public和protected成员都是函数了，用户在使用的时候也就无需区分，这是语法一致性。
 
-**注：**到此为止这一章节都是出于**用户是开发者的角度来考虑“接口的设计”**，但就**产品研发**来说，并没有太多具备二次开发能力的用户，用户往往期待的是现成的软件而不是SDK，这时实现的细节都将由你一个人来把握，因此个人认为“一致性”在这里并不是一个很重要的因素。而且必须要强调的一点就是在这种情况下，我们需要考虑投入产出比，权衡一个优秀的设计到底能带来多大的收益。这其实是一个很现实的问题——大部分小团队的交付压力是比较大的，花过多的时间在设计上也并不是领导者所期望的，而且小公司也确实不过于强调技术细节和迭代，为每一个成员变量设计成员函数会让class变得异常臃肿，因此直接全局public不失为一个简单快捷的方法(当然这并不代表我赞成这种做法)。
+**注：**到此为止这一章节都是出于**用户是开发者的角度来考虑“接口的设计”**，但就**产品研发**来说，并没有太多具备二次开发能力的用户，用户往往期待的是现成的软件而不是SDK，这时实现的细节都将由你一个人来把握，因此个人认为“一致性”在这里并不是一个很重要的因素。而且必须要强调的一点就是在这种情况下，我们需要考虑投入产出比，权衡一个优秀的设计到底能带来多大的收益。这其实是一个很现实的问题——大部分小团队的交付压力是比较大的，花过多的时间在设计上也并不是领导者所期望的，而且小公司也确实不过于强调技术细节和迭代，为每一个成员变量设计Setter和Getter成员函数会让class变得异常臃肿，因此直接全局public不失为一个简单快捷的方法(当然这并不代表我赞成这种做法)。
 
 # Item23: 宁以non-member、non-friend替换member函数
 
@@ -166,8 +164,6 @@ void clearBrowser(WebBrowser& wb)
 
 上述代码分别实现了两个具有相同功能的member函数clearEverything和non-member函数clearBrowser，本条款告诉我们为何要用non-member的版本。
 
-上述代码分别实现了两个具有相同功能的member函数clearEverything和non-member函数clearBrowser，本条款告诉我们为何要用non-member的版本，并且如何更好的设计non-member函数。
-
 ## 类的封装性
 
 封装使我们能够改变事物而只影响有限客户，对成员封装性的一种量化标准是：愈多函数(member/friend)**可以**访问它，它的封装性就愈低。
@@ -188,12 +184,12 @@ class WebBrowser { ... };		//核心机能
 
 // 头文件 webbrowsercookies.h		针对WebBrowser和cookies相关的功能
 namespace WebBrowserStuff {
-	...												//与cookies相关的工具函数
+	...							//与cookies相关的工具函数
 }
 
 // 头文件 webbrowsercache.h		针对WebBrowser和cache相关的功能、
 namespace WebBrowserStuff {
-	...												//与cache相关的工具函数
+	...							//与cache相关的工具函数
 }
 ```
 
@@ -261,7 +257,7 @@ result = 2.operator*(oneHalf);
 - 当std::swap对你的实现效率不高时，提供一个swap member函数，并确定这个函数不抛出异常，同时提供一个non-member swap来调用member swap。
 - 对于class，non-member swap最好是std::swap的特化；对于class template引入对应的namespace并实现non-member swap function template，以非显示调用的形式调用swap。
 
-如条款31所说，一种有效的降低编译以来的实现手法就是使用pImpl，也就是“以指针指向一个对象，内含真正数据”的对象，std::swap将变得异常低效，因为我们只需要置换指针，但std::swap却会实实在在的拷贝对象，因此我们可以考虑特化std::swap，使其对于自定义class只置换执行特定的置换操作。
+如条款31所说，一种有效的降低编译依赖的实现手法就是使用pImpl，也就是“以指针指向一个对象，内含真正数据”的对象，在这种情况下std::swap将变得异常低效，因为我们只需要置换指针，而std::swap却会实实在在的拷贝对象，因此我们可以考虑特化std::swap，使其对于自定义class只置换执行特定的置换操作。
 
 ```c++
 class Widget {

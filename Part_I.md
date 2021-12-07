@@ -1,25 +1,25 @@
 # Item 1: 视C++为一个语言联邦
 
-C++的设计伊始仅是在C的基础上添加一部分面向对象的特性，但随着语言发展，当下的C++更像一个语言集合，其元素(sublanguage)共包含四个：
+C++的设计伊始仅是在C的基础上添加一部分面向对象的特性，但随着语言发展，当下的C++更像一个语言集合，其元素(sub-language)共包含四个：
 
-- C：C++是C的较高级解法，pointer/intelligent pointer，templates/overloading
-- Object- Oriented：C with classes，类/封装/继承/多态/动态绑定
-- Template：generic programming，通常情况下并不会过多涉及这部分内容
-- STL：template programming的一个最佳实践，非常建议学习侯捷老师的STL相关课程
+- C：C++是C的较高级解法，pointer/intelligent pointer，templates/overloading。
+- Object- Oriented：C with classes，类/封装/继承/多态/动态绑定。
+- Template：generic programming，通常情况下并不会过多涉及这部分内容。
+- STL：template programming的一个最佳实践，非常建议学习侯捷老师的STL相关课程。
 
-很有意思的是C++ Prime中也将内容划分为这四部分，不同的地方在于C++ Prime更像一本工具书，读者应该按需阅读而不是死磕语言。
+很有意思的是C++ Prime中也将内容划分为这四部分，不同的地方在于C++ Prime更像一本工具书，读者应该按需阅读而不是死磕语言语法。
 
-- 对于内置类型而言，**pass-by-value**更高效
-- 对于OO，由于user-defined constructor和deconstructor的存在，**pass-by- reference-to-const**会更好
+- 对于内置类型而言，**pass-by-value**更高效。
+- 对于OO，由于user-defined constructor和deconstructor的存在，**pass-by- reference-to-const**会更好。
 
 # Item 2: 尽量以const，enum，inline替换#define
 
-- “宁可以编译器替换与处理器”——尽可能减小预处理器引发错误的可能性
+- “宁可以编译器替换预处理器”——尽可能减小预处理器引发错误的可能性
 
 const和#define两个关键字是C++面试八股的热门，两者的区别网上有很多全面的分析：
 
-- #define在预处理阶段替换展开，const具有类型检查，并且会加载进记号表中，于是在报错时会得到更为明晰的错误提示
-- #define在重复展开的情况下会导致目标码出现多份数据拷贝，因此使用const常量相较而言会产生更小的目标码并且直到调用才会进行内存分配
+- `#define`在预处理阶段替换展开，const具有类型检查，并且会加载进记号表中，于是在报错时会得到更为明晰的错误提示
+- `#define`在重复展开的情况下会导致目标码出现多份数据拷贝，因此使用const常量相较而言会产生更小的目标码并且直到调用才会进行内存分配
 - 类中的常量：#define并无作用域的概念，可以理解为#define全局生效，而const可以被限制在class内，但仅用const修饰的常量的生命周期与对象有关，对整个类而言依然是可变的，因此假如想要确保常量至多只有一份那么还需要加上static关键字。
 
 书中的例子：
@@ -28,14 +28,14 @@ const和#define两个关键字是C++面试八股的热门，两者的区别网�
 class GamePlayer {
 private:
     static const int NumTurns = 5;		// 声明式而非定义式
-    int scores[NumTurns]
+    int scores[NumTurns];
     ...
 };
 ```
 
-需要注意的是在声明式中赋初值的操作仅局限于int类型，正确的作法应该是在GamePlayer类的实现文件中显式定义：`const int GamePlayer::NumTurns = 5;`。
+需要注意的是在声明式中赋初值的操作仅局限于int类型，正确的做法应该是在GamePlayer类的实现文件中显式定义：`const int GamePlayer::NumTurns = 5;`。
 
-接下来的特殊情况个人认为有些过于苛刻了，此外以这样的例子引入enum其实有些牵强，我觉得承认enum的局限性也未尝不可，毕竟假如有阅读过Linux kernel源码，可以发现无论是kernel还是driver，都会大量使用#define(非宏)而非const/enum，保持源码的优美和规范是一部分原因，但具体原因还在思考中。
+接下来的特殊情况个人认为有些过于苛刻了，此外以这样的例子引入enum其实有些牵强，我觉得承认enum的局限性——枚举隐含数据类型是整数，其最大值有限，且不能表示浮点数，也未尝不可，毕竟假如有阅读过Linux kernel源码，可以发现无论是kernel还是driver，都会大量使用#define(非宏)而非const/enum，保持源码的优美和规范是一部分原因，但具体原因还在思考中。
 
 ## template inline function
 
@@ -52,7 +52,7 @@ CALL_WITH_MAX(++a, b + 10)；	   // a累加1次
 
 不过宏的大量使用会增加代码的阅读难度，往往你为了找到一个正确的函数调用就得花费大量的时间，这也是我不喜欢阅读使用C语言大型库源码的原因。
 
-因此我也更建议使用template inline函数：
+因此确实更建议使用template inline函数：
 
 ```c++
 template<typename T>
@@ -118,7 +118,7 @@ Rational a, b, c;
 ...
 (a * b) = c;
 // or
-if (a * b = c) // 遗漏
+if (a * b = c) // 遗漏导致
 ```
 
 且不说这类明显错误的出现概率，自从左值和右值的概念被提出来之后，这类错误已经能够被编译器识别，显然`a * b`作为一个函数返回不仅是临时变量还是一个非左值，我印象里即使不报error也会有warning提示(to-do: 实际测试)。
@@ -166,7 +166,7 @@ char* pc = &cctb[0];
 
 > 一个const成员函数可以修改它所处理的对象内的某些bits，但只有在客户端侦测不出的情况下才得如此。
 
-为了实现这点需要使用mutable释放掉non-static成员变量的bitwise constness约束。
+为了实现这点需要使用`mutable`释放掉non-static成员变量的bitwise constness约束。
 
 ## 在const和non-const成员函数中避免重复
 
@@ -196,17 +196,17 @@ int x;
 int y[100];
 ```
 
-在大多数情况下(与编译器版本和语境有关)，在《C++ Prime》Chapter2.2.1(Page 40)中提到：
+在大多数情况下(与编译器版本和语境有关)，声明变量的初始值在《C++ Prime》Chapter2.2.1(Page 40)中提到：
 
 > 如果是内置类型的变量未被显式初始化，它的值由定义的位置决定。定义于任何函数体之外的变量被初始化为0。定义在函数体内部的内置类型变量将不被初始化。
 
 但我在前段时间有做过一个整型情况下的测试，无论是单一变量还是数组，初值都是0。
 
-**注：**无论怎么说读取未初始化的值会导致不明确的行为，将污染正在进行读取动作的那个对象，并不建议这么做。
+**注：**即使编译器有可能替你完成变量的初始化工作，但不管怎么说读取未初始化的值会导致不明确的行为，将污染正在进行读取动作的那个对象，并不建议这么做。
 
 本条例讨论了赋值和初始化两个概念，在《C++ Prime》Chapter2.2.1(Page 39)中对于两者有一个简单的解释：
 
-> 初始化不是赋值，初始化的含义是创建变量时赋予其一个厨师值，而赋值的含义是把对象的当前值擦出，而以一个新值来替代。
+> 初始化不是赋值，初始化的含义是创建变量时赋予其一个初始值，而赋值的含义是把对象的当前值擦出，以一个新值来替代。
 
 C++规定，对象的成员变量的初始化动作发生在进入构造函数本体之前，因此更推荐的做法是使用初值列来完成初始化动作：
 
